@@ -16,6 +16,11 @@ import { AuthModule } from './auth/auth.module';
             useFactory: (configService: ConfigService) => ({
                 type: 'postgres',
                 url: configService.get('database.uri'),
+                // host: configService.get('database.host'),
+                // port: configService.get('database.port'),
+                // user: configService.get('database.user'),
+                // password: configService.get('database.password'),
+                // name: configService.get('database.name'),
                 entities: [Users],
                 synchronize: true,
             }),

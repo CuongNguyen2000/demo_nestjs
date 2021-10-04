@@ -4,5 +4,5 @@ dist
 yarn.lock
 package-lock.json
 ormconfig.json
-privateKey.pem
-publicKey.pem
+jwtRS256.key
+jwtRS256.key.pub

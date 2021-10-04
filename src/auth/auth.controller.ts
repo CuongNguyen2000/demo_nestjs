@@ -2,7 +2,6 @@ import { Body, Controller, Post, Req, Res, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './strategy/jwt-auth.guard';
 import { UsersDTO } from './dto/users.dto'
-
 import {
     ApiBearerAuth,
     ApiOperation,
@@ -27,7 +26,7 @@ export class AuthController {
     @UseGuards(JwtAuthGuard)
     @Post('register')
     @ApiOperation({ summary: 'Create User' })
-    @ApiResponse({ status: 403, description: 'Forbidden.' })
+    @ApiResponse({ status: 401, description: 'Unauthorized' })
     async register(@Req() req, @Res() res, @Body() body: UsersDTO) {
         const auth = await this.authService.createUser(body);
         res.status(auth.status).json(auth.content);
