@@ -40,6 +40,14 @@ $ ssh-keygen -t rsa -b 4096 -m PEM -f jwtRS256.key
 $ openssl rsa -in jwtRS256.key -pubout -outform PEM -out jwtRS256.key.pub
 ```
 
+## Add our private and public key
+
+```bash
+# I will use our keys as environment variables, you can change that to use files or any other thing you want.
+$ echo "PRIVATE_KEY=\""`awk 'NF {sub(/\r/, ""); printf "%s\\n",$0;}' privateKey.pem`"\"" >> .env
+$ echo "PUBLIC_KEY=\""`awk 'NF {sub(/\r/, ""); printf "%s\\n",$0;}' publicKey.pem`"\"" >> .env
+```
+
 ## Running the app
 
 ```bash
