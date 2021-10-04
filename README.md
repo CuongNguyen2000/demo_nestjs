@@ -35,6 +35,12 @@ $ npm install
 ## Running the app
 
 ```bash
+# install package
+$ yarn install or npm install
+
+# setup postgresDB, go to src/scripts/start-db.sh and change the PW back to yours
+$ npm run start:dev:db
+
 # development
 $ npm run start
 
