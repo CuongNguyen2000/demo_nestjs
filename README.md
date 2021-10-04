@@ -29,15 +29,20 @@
 ## Installation
 
 ```bash
-$ npm install
+# Install Package
+$ npm install or yarn install
+
+# get your rsa privateKey
+# Don't add passphrase
+$ ssh-keygen -t rsa -b 4096 -m PEM -f jwtRS256.key
+
+# get publicKey
+$ openssl rsa -in jwtRS256.key -pubout -outform PEM -out jwtRS256.key.pub
 ```
 
 ## Running the app
 
 ```bash
-# install package
-$ yarn install or npm install
-
 # setup postgresDB, go to src/scripts/start-db.sh and change the PW back to yours
 $ npm run start:dev:db
 
