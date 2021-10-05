@@ -1,7 +1,7 @@
 import { Body, Controller, Post, Req, Res, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './strategy/jwt-auth.guard';
-import { UsersDTO } from './dto/users.dto'
+import { UsersDTO } from './dto/users.dto';
 import {
     ApiBearerAuth,
     ApiOperation,
@@ -13,7 +13,7 @@ import {
 @ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
-    constructor(private authService: AuthService) { }
+    constructor(private authService: AuthService) {}
 
     @Post('login')
     @ApiOperation({ summary: 'Login' })

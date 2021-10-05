@@ -11,13 +11,12 @@ async function bootstrap() {
 
     const config = new DocumentBuilder()
         .setTitle('Auth API')
-        .setDescription('Auth API') 
+        .setDescription('Auth API')
         .setVersion('1.0')
-        .build()
+        .build();
 
     const document = SwaggerModule.createDocument(app, config);
     SwaggerModule.setup('api', app, document);
-
 
     app.enableCors();
     logger.verbose(`Database URI => ${configService.get('database.uri')}`);

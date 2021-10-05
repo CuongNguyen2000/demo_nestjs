@@ -11,7 +11,6 @@ import { AuthModule } from './auth/auth.module';
             isGlobal: true,
             load: [configuration],
         }),
-
         TypeOrmModule.forRoot({
             type: 'postgres',
             host: process.env.POSTGRES_HOST,
@@ -21,7 +20,7 @@ import { AuthModule } from './auth/auth.module';
             database: process.env.POSTGRES_DATABASE,
             entities: [Users],
             synchronize: true,
-          }),
+        }),
         AuthModule,
     ],
     controllers: [],
