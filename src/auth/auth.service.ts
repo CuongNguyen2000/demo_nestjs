@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, UnauthorizedException } from '@nestjs/common';
 import { UsersDTO } from './dto/users.dto';
 import { validate } from 'class-validator';
 import { JwtService } from '@nestjs/jwt';
@@ -15,60 +15,50 @@ export class AuthService {
         private jwtService: JwtService,
         @InjectRepository(Users)
         private usersRepository: Repository<Users>,
-    ) {}
+    ) { }
 
-    async login(user: any): Promise<Record<string, any>> {
-        // Validation Flag
-        let isOk = false;
+    async login(user: UsersDTO): Promise<Record<string, any>> {
 
-        // Transform body into DTO
         const userDTO = new UsersDTO();
         userDTO.username = user.username;
         userDTO.password = user.password;
 
-        // Validate DTO against validate function from class-validator
-        await validate(userDTO).then(errors => {
-            if (errors.length > 0) {
-                this.logger.debug(`${errors}`, AuthService.name);
-            } else {
-                isOk = true;
-            }
+        const check = await validate(userDTO);
+        console.log(check)
+
+        if (check.length > 0) {
+            this.logger.debug(`${check}`, AuthService.name);
+            throw new HttpException('Invalid Fields', HttpStatus.BAD_REQUEST);
+        }
+
+        // Get user information
+        const userDetails = await this.usersRepository.findOne({
+            username: user.username,
         });
 
-        if (isOk) {
-            // Get user information
-            const userDetails = await this.usersRepository.findOne({
-                username: user.username,
-            });
-            if (userDetails == null) {
-                return { status: 401, msg: { msg: 'Invalid credentials' } };
-            }
+        if (!userDetails) throw new UnauthorizedException('Users does not exist');
 
-            // Check if the given password match with saved password
-            const isValid = bcrypt.compareSync(
-                user.password,
-                userDetails.password,
-            );
-            // console.log(isValid);
-            if (isValid) {
-                return {
-                    status: 200,
-                    msg: {
+        // Check if the given password match with saved password
+        const isValid = bcrypt.compareSync(
+            user.password,
+            userDetails.password,
+        );
+        // console.log(isValid);
+        if (isValid) {
+            return {
+                msg: {
+                    username: user.username,
+                    access_token: this.jwtService.sign({
                         username: user.username,
-                        access_token: this.jwtService.sign({
-                            username: user.username,
-                        }),
-                    },
-                };
-            } else {
-                return { status: 401, msg: { msg: 'Invalid credentials' } };
-            }
+                    }),
+                },
+            };
         } else {
-            return { status: 400, msg: { msg: 'Invalid fields.' } };
+            throw new UnauthorizedException('Invalid credentials');
         }
     }
 
-    async createUser(body: any): Promise<Record<string, any>> {
+    async createUser(body: UsersDTO): Promise<Record<string, any>> {
         // Validation Flag
         let isOk = false;
 
@@ -78,31 +68,31 @@ export class AuthService {
         userDTO.password = bcrypt.hashSync(body.password, 10);
 
         // Validate DTO against validate function from class-validator
-        await validate(userDTO).then(errors => {
-            if (errors.length > 0) {
-                this.logger.debug(`${errors}`, AuthService.name);
-            } else {
-                isOk = true;
-            }
-        });
-        if (isOk) {
-            const newUser = await this.usersRepository
-                .save(userDTO)
-                .catch(error => {
-                    this.logger.debug(error.message, AuthService.name);
-                    isOk = false;
-                });
-            console.log(newUser);
-            if (isOk) {
-                return {
-                    status: 201,
-                    content: { msg: `User created with success` },
-                };
-            } else {
-                return { status: 400, content: { msg: 'User already exists' } };
-            }
+        const check = await validate(userDTO);
+        console.log(check)
+
+        if (check.length > 0) {
+            this.logger.debug(`${check}`, AuthService.name);
+            throw new HttpException('Invalid content', HttpStatus.BAD_REQUEST);
         } else {
-            return { status: 400, content: { msg: 'Invalid content' } };
+            isOk = true;
+        }
+
+        const newUser = await this.usersRepository
+            .save(userDTO)
+            .catch(error => {
+                this.logger.debug(error.message, AuthService.name);
+                isOk = false;
+            });
+
+        console.log(newUser);
+
+        if (isOk) {
+            return {
+                content: { msg: `User created with success` },
+            };
+        } else {
+            throw new HttpException('User already exists', HttpStatus.BAD_REQUEST);
         }
     }
 }

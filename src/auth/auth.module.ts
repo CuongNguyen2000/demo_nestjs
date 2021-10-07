@@ -8,6 +8,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Users } from '../entities/users.entity';
+import { PRIVATE_KEY, PUBLIC_KEY } from '../scripts/readKey'
 
 @Module({
     imports: [
@@ -17,8 +18,8 @@ import { Users } from '../entities/users.entity';
             imports: [ConfigModule],
             useFactory: (configService: ConfigService) => {
                 return {
-                    privateKey: configService.get<string>('keys.privateKey'),
-                    publicKey: configService.get<string>('keys.publicKey'),
+                    privateKey: PRIVATE_KEY,
+                    publicKey: PUBLIC_KEY,
                     signOptions: { expiresIn: '60s', algorithm: 'RS256' },
                 };
             },
@@ -30,4 +31,4 @@ import { Users } from '../entities/users.entity';
     exports: [AuthService],
     controllers: [AuthController],
 })
-export class AuthModule {}
+export class AuthModule { }
