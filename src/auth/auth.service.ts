@@ -1,8 +1,7 @@
 import {
     HttpException,
     HttpStatus,
-    Injectable,
-    UnauthorizedException,
+    Injectable
 } from '@nestjs/common';
 import { UsersDTO } from './dto/users.dto';
 import { validate } from 'class-validator';
@@ -41,7 +40,7 @@ export class AuthService {
         });
 
         if (!userDetails)
-            throw new UnauthorizedException('Users does not exist');
+            throw new HttpException('User with this username does not exist', HttpStatus.NOT_FOUND);
 
         // Check if the given password match with saved password
         const isValid = bcrypt.compareSync(user.password, userDetails.password);
@@ -56,7 +55,7 @@ export class AuthService {
                 },
             };
         } else {
-            throw new UnauthorizedException('Invalid credentials');
+            throw new HttpException('Invalid credentials', HttpStatus.BAD_REQUEST);
         }
     }
 
