@@ -1,4 +1,9 @@
-import { HttpException, HttpStatus, Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+    HttpException,
+    HttpStatus,
+    Injectable,
+    UnauthorizedException,
+} from '@nestjs/common';
 import { UsersDTO } from './dto/users.dto';
 import { validate } from 'class-validator';
 import { JwtService } from '@nestjs/jwt';
@@ -18,13 +23,12 @@ export class AuthService {
     ) { }
 
     async login(user: UsersDTO): Promise<Record<string, any>> {
-
         const userDTO = new UsersDTO();
         userDTO.username = user.username;
         userDTO.password = user.password;
 
         const check = await validate(userDTO);
-        console.log(check)
+        console.log(check);
 
         if (check.length > 0) {
             this.logger.debug(`${check}`, AuthService.name);
@@ -36,13 +40,11 @@ export class AuthService {
             username: user.username,
         });
 
-        if (!userDetails) throw new UnauthorizedException('Users does not exist');
+        if (!userDetails)
+            throw new UnauthorizedException('Users does not exist');
 
         // Check if the given password match with saved password
-        const isValid = bcrypt.compareSync(
-            user.password,
-            userDetails.password,
-        );
+        const isValid = bcrypt.compareSync(user.password, userDetails.password);
         // console.log(isValid);
         if (isValid) {
             return {
@@ -69,7 +71,7 @@ export class AuthService {
 
         // Validate DTO against validate function from class-validator
         const check = await validate(userDTO);
-        console.log(check)
+        console.log(check);
 
         if (check.length > 0) {
             this.logger.debug(`${check}`, AuthService.name);
