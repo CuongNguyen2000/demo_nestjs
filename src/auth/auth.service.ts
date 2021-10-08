@@ -4,6 +4,8 @@ import {
     Injectable
 } from '@nestjs/common';
 import { UsersDTO } from './dto/users.dto';
+import { LoginUserDto } from './dto/loginUser.dto';
+import { CreateUserDto } from './dto/createUser.dto';
 import { validate } from 'class-validator';
 import { JwtService } from '@nestjs/jwt';
 import { LoggerService } from '../logger/logger.service';
@@ -21,13 +23,12 @@ export class AuthService {
         private usersRepository: Repository<Users>,
     ) { }
 
-    async login(user: UsersDTO): Promise<Record<string, any>> {
-        const userDTO = new UsersDTO();
+    async login(user: LoginUserDto): Promise<Record<string, any>> {
+        const userDTO = new LoginUserDto();
         userDTO.username = user.username;
         userDTO.password = user.password;
 
         const check = await validate(userDTO);
-        console.log(check);
 
         if (check.length > 0) {
             this.logger.debug(`${check}`, AuthService.name);
@@ -55,22 +56,21 @@ export class AuthService {
                 },
             };
         } else {
-            throw new HttpException('Invalid credentials', HttpStatus.BAD_REQUEST);
+            throw new HttpException('Invalid credentials', HttpStatus.UNAUTHORIZED);
         }
     }
 
-    async createUser(body: UsersDTO): Promise<Record<string, any>> {
+    async createUser(body: CreateUserDto): Promise<Record<string, any>> {
         // Validation Flag
         let isOk = false;
 
         // Transform body into DTO
-        const userDTO = new UsersDTO();
+        const userDTO = new CreateUserDto();
         userDTO.username = body.username;
         userDTO.password = bcrypt.hashSync(body.password, 10);
 
         // Validate DTO against validate function from class-validator
         const check = await validate(userDTO);
-        console.log(check);
 
         if (check.length > 0) {
             this.logger.debug(`${check}`, AuthService.name);
@@ -94,6 +94,16 @@ export class AuthService {
             };
         } else {
             throw new HttpException('User already exists', HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    async findOneUser(user: UsersDTO): Promise<Record<string, any>> {
+        const findUser = await this.usersRepository.findOne(user.id);
+
+        if (!findUser) {
+            throw new HttpException('User with this id does not exist', HttpStatus.NOT_FOUND);
+        } else {
+            return findUser;
         }
     }
 }
